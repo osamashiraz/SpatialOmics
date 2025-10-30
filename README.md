@@ -1,16 +1,20 @@
 
-# =============================
+-----------------
 # Xenium Dataflow
-# Inputs → Processes → Outputs
-# =============================
+-----------------
 
+## Inputs
+```
 [INPUTS]
   ├─ IF morphology images                # DAPI ± membrane/cytoplasm (if Multimodal Cell Segmentation, MCS)
   ├─ RNA chemistry images + codebook     # Per-cycle, per-channel images + panel/codewords
   └─ Run metadata                        # Instrument run, FOVs, panel JSON
+```
+----------
 
-# ---------- CORE PIPELINE ----------
+##  CORE PROCESSES AND OUTPUTS
 
+```
 # 1) Decoding: convert RNA chemistry images into decoded molecules
 [PROCESS] Decode
   # uses: RNA chemistry images + codebook/panel JSON
@@ -41,10 +45,12 @@
   # uses: metrics from decoding + segmentation + matrix + key images
   ├──▶ metrics_summary.csv               # run-wide KPIs (assign rate, median genes/cell, %Q20, etc.)
   └──▶ analysis_summary.html             # interactive HTML report; links thumbnails/overlays/plots
+```
 
+----------
 
-# ---------- AUXILIARY (PROVENANCE & QA) ----------
-
+## AUXILIARY FOLDERS/FILES
+```
 [AUX] per_cycle_channel_images/          # FROM: RNA chemistry images; QA frames used to inspect decoding inputs
 [AUX] background_qc_images/              # FROM: autofluorescence frames; used to make morphology_focus/*
 [AUX] morphology_focus/                  # FROM: IF morphology – background subtracted, multi-focus 2D OME-TIFFs
@@ -55,14 +61,17 @@
 [AUX] morphology_thumbnails/             # FROM: morphology.ome.tif; downsampled PNGs for HTML/report
 [AUX] runtime_logs/                      # FROM: analyzer; versions, CLI args, timing breakdown
 [AUX] gene_panel.json                    # FROM: input design; codewords/targets used in decoding
+```
 
+----------
 
-# ---------- FILE → PROCESS LINK SUMMARY (at a glance) ----------
-- RNA images + codebook   ──Decode────▶ transcripts.parquet
-- IF images               ──Segment───▶ cells.zarr.zip ──simplify──▶ cell_/nucleus_boundaries.parquet
-- transcripts + cells     ──Assign────▶ cells.parquet ──filter_tx──▶ cell_feature_matrix.*
-- matrix                  ──Analyze───▶ analysis/ ──pack──▶ analysis.zarr.zip
-- all metrics + images    ──Summarize─▶ metrics_summary.csv, analysis_summary.html
+##  Summary
 
-# ---------- EXPORTS FOR EXPLORER ----------
-# Preferred: transcripts.zarr.zip, cell_feature_matrix.zarr.zip, analysis.zarr.zip (+ experiment.xenium manifest)
+```
+[INPUT] ──Process───▶ [OUTPUT]
+RNA images + codebook   ──Decode────▶ transcripts.parquet
+IF images               ──Segment───▶ cells.zarr.zip ──simplify──▶ cell_/nucleus_boundaries.parquet
+transcripts + cells     ──Assign────▶ cells.parquet ──filter_tx──▶ cell_feature_matrix.*
+matrix                  ──Analyze───▶ analysis/ ──pack──▶ analysis.zarr.zip
+all metrics + images    ──Summarize─▶ metrics_summary.csv, analysis_summary.html
+```
