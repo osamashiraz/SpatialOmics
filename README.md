@@ -15,32 +15,32 @@
 ##  CORE PROCESSES AND OUTPUTS
 
 ```
-# 1) Decoding: convert RNA chemistry images into decoded molecules
+1) Decoding: convert RNA chemistry images into decoded molecules
 [PROCESS] Decode
   # uses: RNA chemistry images + codebook/panel JSON
   └──▶ transcripts.parquet               # per-molecule table: x,y,(z), gene, Q-score, cycle, channel, intensity
   └──▶ transcripts.zarr.zip              # same as above, but in zarr bundle for compatibility with Xenium Explorer
 
-# 2) Segmentation: derive nuclei/cell masks from morphology IF
+2) Segmentation: derive nuclei/cell masks from morphology IF
 [PROCESS] Segmentation
   # uses: IF morphology images (DAPI ± membrane/cytoplasm)
   └──▶ cells.zarr.zip                    # authoritative segmentation: masks, centroids, areas, per-cell geometry
       ├──▶ cell_boundaries.parquet       # simplified membrane polygons (derived from cells.zarr.zip)
       └──▶ nucleus_boundaries.parquet    # simplified nucleus polygons (derived from cells.zarr.zip)
 
-# 3) Assignment: place decoded molecules into segmented cells
+3) Assignment: place decoded molecules into segmented cells
 [PROCESS] Assign transcripts to cells
   # uses: transcripts.parquet + cells.zarr.zip
   └──▶ cells.parquet                     # per-cell summaries (counts, genes detected, area, %nuclear, QC)
       └──▶ cell_feature_matrix.*         # gene×cell count matrix (Q≥threshold); formats: MEX/, .h5, .zarr.zip
 
-# 4) Secondary analysis: run on the cell×gene matrix
+4) Secondary analysis: run on the cell×gene matrix
 [PROCESS] Analyze matrix
   # uses: cell_feature_matrix.*
   └──▶ analysis/                         # CSV/TSV: PCA loadings/scores, neighbors, clustering, UMAP, DE/markers
       └──▶ analysis.zarr.zip             # packaged analysis for Xenium Explorer
 
-# 5) QC roll-up / reporting
+5) QC roll-up / reporting
 [PROCESS] Summarize QC
   # uses: metrics from decoding + segmentation + matrix + key images
   ├──▶ metrics_summary.csv               # run-wide KPIs (assign rate, median genes/cell, %Q20, etc.)
@@ -66,7 +66,6 @@
 ----------
 
 ##  Summary
-
 ```
 [INPUT] ──Process───▶ [OUTPUT]
 RNA images + codebook   ──Decode────▶ transcripts.parquet
